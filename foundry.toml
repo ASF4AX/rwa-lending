@@ -1,0 +1,22 @@
+profile = "default"
+
+[profile.default]
+src = "contracts"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+optimizer = true
+optimizer_runs = 200
+evm_version = "paris"
+bytecode_hash = "none"
+ffi = false
+gas_reports = ["*"]
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+int_types = "short"
+multiline_func_header = "all"
+
