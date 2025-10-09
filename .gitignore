@@ -23,6 +23,7 @@ pnpm-debug.log*
 out/
 cache/
 broadcast/
+dependencies/
 
 # App (Svelte + Vite)
 app/node_modules/
@@ -53,4 +54,3 @@ oracle-go/coverage.out
 **/*.dylib
 **/*.test
 **/*.out
-
