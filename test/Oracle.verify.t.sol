@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {PriceFeedProxy} from "../contracts/PriceFeedProxy.sol";
 
 contract OracleVerifyTest is Test {
@@ -19,4 +19,3 @@ contract OracleVerifyTest is Test {
         assertEq(t, block.timestamp);
     }
 }
-

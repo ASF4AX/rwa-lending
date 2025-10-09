@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {RWALendingPool} from "../contracts/RWALendingPool.sol";
 import {IPriceFeed} from "../contracts/interfaces/IPriceFeed.sol";
 
@@ -10,6 +10,7 @@ contract MockFeedVar is IPriceFeed {
     int256 public price = 1e18;
     uint256 public timestamp = block.timestamp;
     function latest() external view returns (uint256, int256, uint256) { return (roundId, price, timestamp); }
+    function setPrice(int256 p) external { price = p; }
 }
 
 contract LendingLiquidationTest is Test {
@@ -24,9 +25,8 @@ contract LendingLiquidationTest is Test {
     }
 
     function testCanLiquidateWhenHFBelow1() public {
-        feed.price = 7e17; // $0.7 -> HF drops
+        feed.setPrice(7e17); // $0.7 -> HF drops
         pool.liquidate(address(this), 100e18);
         assertLt(pool.debt(address(this)), 650e18);
     }
 }
-
