@@ -9,18 +9,7 @@
 - Svelte + Vite + viem (프론트)
 - Docker Compose (anvil, oracle, app)
 
-## Prerequisites
-
-- Foundry (forge/cast/anvil)
-  - macOS: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
-  - Verify: `forge --version`, `anvil --version`, `cast --version`
-- Node.js 20 LTS
-  - `brew install node@20` 또는 `brew install volta && volta install node@20`
-- Go 1.21+
-  - `brew install go` (또는 최신 1.22)
-- Docker & Docker Compose (선택, 컨테이너 실행용)
-
-## Repository Structure (tl;dr)
+## Repository Structure
 
 - `contracts/` Solidity 컨트랙트 (RWAAssetToken, RWARegistrar, RWALendingPool, PriceFeedProxy)
 - `script/` Foundry 배포/시드 스크립트
@@ -29,48 +18,56 @@
 - `app/` Svelte + Vite + viem 프론트
 - `docker-compose.yml`, `.env.example`, `foundry.toml`
 
-## Quick Start (Local)
+## Getting Started
 
-1) 환경 변수 준비
+- Local Development: 로컬 툴체인(Foundry/Node/Go)으로 개발·디버깅
+- Docker Compose: Docker로 빠르게 전체 스택 실행
 
-- 루트에 복사 후 수정: `cp .env.example .env`
-- 기본값: `RPC_URL=http://localhost:8545` (anvil)
+## Local Development
 
-2) 로컬 노드 실행
+### Prerequisites
 
-- anvil: `anvil -p 8545 -m "test test test test test test test test test test test junk"`
+- Foundry (forge/cast/anvil)
+  - 설치: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
+  - 확인: `forge --version`, `anvil --version`, `cast --version`
+- Node.js 20 LTS (프론트)
+- Go 1.21+ (오라클)
 
-3) Foundry 의존성 설치 및 테스트
+### Setup
 
-- 표준 라이브러리 설치: `forge install foundry-rs/forge-std`
-- 테스트 실행: `forge test --gas-report`
+- 환경 변수 파일: `cp .env.example .env`
+- Foundry 의존성: `forge soldeer update`
 
-4) 오라클 서버 실행 (목업)
+### Run
 
-- 환경: `cp oracle-go/.env.example oracle-go/.env` 후 필요 시 값 설정
-- 실행: `cd oracle-go && go run ./cmd/oracle`
-- 확인: `curl http://localhost:8088/price/latest`
+- Anvil 노드
+  - `source .env`
+  - `anvil -p 8545 -m "$ANVIL_MNEMONIC"`
+- 오라클 서버(목업)
+  - `cp oracle-go/.env.example oracle-go/.env`
+  - `cd oracle-go && go run ./cmd/oracle`
+  - 확인: `curl http://localhost:8088/price/latest`
+- 프론트엔드
+  - `cd app && pnpm i --frozen-lockfile && pnpm dev`
+  - 접속: http://localhost:5173
 
-5) 프론트 실행
+### Test
 
-- 의존성 설치: `cd app && npm i`
-- 개발 서버: `npm run dev`
-- 접속: http://localhost:5173
+- `forge test --gas-report`
 
-## Quick Start (Docker Compose)
+## Docker Compose
 
-1) `.env` 준비: `cp .env.example .env`
+### Prerequisites
 
-2) 빌드/실행: `docker compose up --build`
+- Docker & Docker Compose
 
-- anvil: `:8545`
-- oracle: `:8088`
-- app: `:5173`
+### Setup
 
-## Testing
+- 환경 변수 파일: `cp .env.example .env`
 
-- Unit/Gas: `forge test --gas-report`
-- 커버리지(원하면): `forge coverage` (환경에 따라 추가 설정 필요할 수 있음)
+### Run
+
+- 전체 스택 실행: `docker compose up -d`
 
 ## Deployment (예시)
 

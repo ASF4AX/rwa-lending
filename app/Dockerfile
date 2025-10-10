@@ -1,13 +1,17 @@
-FROM node:20-alpine AS deps
-WORKDIR /usr/src/app
-COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* ./
-RUN if [ -f pnpm-lock.yaml ]; then npm i -g pnpm && pnpm i; \
-    elif [ -f yarn.lock ]; then yarn; \
-    else npm i; fi
-
 FROM node:20-alpine
 WORKDIR /usr/src/app
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+
+# Use pnpm
+RUN npm i -g pnpm
+
+# Install deps with lockfile
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# Copy app source
 COPY . .
+
 EXPOSE 5173
-CMD ["sh", "-lc", "[ -d node_modules ] || npm ci; npm run dev -- --host"]
+
+# Install on startup if node_modules volume is empty, then run dev (bind 0.0.0.0, fixed port)
+CMD ["sh", "-lc", "[ -d node_modules ] || pnpm i --frozen-lockfile; pnpm dev --host 0.0.0.0 --port 5173 --strictPort"]
