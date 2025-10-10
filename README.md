@@ -76,7 +76,6 @@
 
 ## Notes & Current Limitations
 
-- PriceFeedProxy는 서명 검증(ecrecover) 로직이 TODO 상태로, 현재는 타임스탬프/라운드 증가만 검증합니다.
 - 오라클 서버는 `GET /price/latest` 목업 응답을 반환합니다. signer/체인 도메인 분리, Heartbeat/Deviation 로직은 순차 구현 예정입니다.
 - 프론트 라우트(`/swap`, `/borrow`, `/liquidate`)는 초기 목업이며, ABI 연결 및 실제 트랜잭션 연결은 차차 연동합니다.
 
