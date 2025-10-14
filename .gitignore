@@ -45,6 +45,7 @@ oracle-go/.env
 oracle-go/bin/
 oracle-go/tmp/
 oracle-go/coverage.out
+oracle-go/.gocache/
 
 # Go build artifacts (module-local)
 **/*.exe

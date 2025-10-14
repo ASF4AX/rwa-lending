@@ -1,9 +1,10 @@
 package api
 
 import (
-    "encoding/json"
-    "net/http"
-    "time"
+	"encoding/json"
+	"log"
+	"net/http"
+	"time"
 )
 
 type PriceLatest struct {
@@ -13,16 +14,50 @@ type PriceLatest struct {
     Signature string `json:"signature"`
 }
 
-func RegisterRoutes(mux *http.ServeMux) {
-    mux.HandleFunc("/price/latest", func(w http.ResponseWriter, r *http.Request) {
-        resp := PriceLatest{
-            RoundID:   1,
-            Price:     "1000000000000000000", // 1e18
-            Timestamp: time.Now().Unix(),
-            Signature: "", // TODO: fill from signer
-        }
-        w.Header().Set("Content-Type", "application/json")
-        _ = json.NewEncoder(w).Encode(resp)
-    })
+// Signer produces an EIP-712 compatible signature for the given message fields.
+type Signer interface {
+    Sign(roundID uint64, priceStr string, timestamp int64) (string, error)
 }
 
+// PriceSource provides the latest round and price information
+type PriceSource interface {
+    Latest() (roundID uint64, price string)
+}
+
+func writeJSON(w http.ResponseWriter, status int, v any) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(status)
+    if err := json.NewEncoder(w).Encode(v); err != nil {
+        http.Error(w, "encode error", http.StatusInternalServerError)
+    }
+}
+
+func latestPriceHandler(priceSource PriceSource, eip712Signer Signer) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        round, price := priceSource.Latest()
+        ts := time.Now().UTC().Unix()
+
+        sig, err := eip712Signer.Sign(round, price, ts)
+        if err != nil {
+            log.Printf("sign error: %v", err)
+            http.Error(w, "sign error", http.StatusInternalServerError)
+            return
+        }
+
+        resp := PriceLatest{
+            RoundID:   round,
+            Price:     price,
+            Timestamp: ts,
+            Signature: sig,
+        }
+
+        log.Printf("%s %s from %s -> round=%d price=%s ts=%d",
+            r.Method, r.URL.Path, r.RemoteAddr, resp.RoundID, resp.Price, resp.Timestamp)
+
+        writeJSON(w, http.StatusOK, resp)
+    }
+}
+
+func RegisterRoutes(router *http.ServeMux, priceSource PriceSource, eip712Signer Signer) {
+    router.HandleFunc("/price/latest", latestPriceHandler(priceSource, eip712Signer))
+}
