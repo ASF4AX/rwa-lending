@@ -25,6 +25,8 @@ type PriceSource interface {
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
+    // Basic CORS for local dev
+    w.Header().Set("Access-Control-Allow-Origin", "*")
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(status)
     if err := json.NewEncoder(w).Encode(v); err != nil {
