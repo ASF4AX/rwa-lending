@@ -1,5 +1,6 @@
 <script lang="ts">
   import { publicClient } from '../lib/web3';
+  import OracleLatest from '../components/OracleLatest.svelte';
   let amount = '0';
   let message = '';
   function onSwap() {
@@ -12,3 +13,4 @@
 <button on:click={onSwap}>Swap (mock)</button>
 <p>{message}</p>
 
+<OracleLatest />

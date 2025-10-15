@@ -29,6 +29,7 @@ This document tracks tasks, progress, and next steps for the project. After each
   - [x] GET /price/latest 서명 포함 응답
   - [ ] 컨테이너 헬스체크/로그 보강
 - [ ] 프론트 연결(Svelte + viem)
+  - [x] 오라클 최신 가격(서명 포함) UI 표시
   - [ ] ABI JSON 정리 및 주소/체인 env 주입
   - [ ] readContract/writeContract로 borrow/repay/deposit/liq 플로우 연결
   - [ ] 스캔 링크, 기본 에러/로딩 상태 처리
