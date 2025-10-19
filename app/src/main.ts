@@ -1,6 +1,6 @@
-import Swap from './routes/swap.svelte';
+import Borrow from './routes/borrow.svelte';
+import './styles.css';
 
-const app = new Swap({ target: document.getElementById('app')! });
+const app = new Borrow({ target: document.getElementById('app')! });
 
 export default app;
-

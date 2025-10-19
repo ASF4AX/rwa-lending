@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IPriceFeed} from "./interfaces/IPriceFeed.sol";
+import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
+import { PriceVerifier } from "./lib/PriceVerifier.sol";
+
+interface IPriceFeedMeta {
+    function feedSigner() external view returns (address);
+    function maxDelay() external view returns (uint256);
+}
 
 /// @title RWALendingPool
 /// @notice Collateralized lending with basic parameters and HF check.
 /// @dev Minimal stub for initial scaffold; uses fixed-point 1e18 precision.
 contract RWALendingPool {
     IPriceFeed public priceFeed;
+    IPriceFeedMeta public priceMeta; // same address as priceFeed (PriceFeedProxy)
+    uint256 public lastRoundId;      // last accepted oracle round
 
     uint256 public constant MAX_LTV = 65e16;         // 65%
     uint256 public constant LIQ_THRESHOLD = 75e16;   // 75%
@@ -23,8 +31,11 @@ contract RWALendingPool {
     event Withdraw(address indexed user, uint256 amount);
     event Liquidate(address indexed user, address indexed liquidator, uint256 repayAmount);
 
+    struct PriceBundle { uint256 roundId; int256 price; uint256 ts; bytes sig; }
+
     constructor(IPriceFeed feed) {
         priceFeed = feed;
+        priceMeta = IPriceFeedMeta(address(feed));
     }
 
     function depositCollateral(uint256 amount) external {
@@ -32,51 +43,72 @@ contract RWALendingPool {
         emit Deposit(msg.sender, amount);
     }
 
-    function borrow(uint256 amount) external {
-        require(_canBorrow(msg.sender, amount), "EXCEEDS_LTV");
+    function borrow(uint256 amount, PriceBundle calldata bundle) external {
+        _verifyPrice(bundle);
+        uint256 price = _toUintPrice(bundle.price);
+        require(_canBorrowWithPrice(msg.sender, amount, price), "EXCEEDS_LTV");
         debt[msg.sender] += amount;
         emit Borrow(msg.sender, amount);
     }
 
     function repay(uint256 amount) external {
-        uint256 d = debt[msg.sender];
-        if (amount > d) amount = d;
-        debt[msg.sender] = d - amount;
+        uint256 currentDebt = debt[msg.sender];
+        if (amount > currentDebt) amount = currentDebt;
+        debt[msg.sender] = currentDebt - amount;
         emit Repay(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount, PriceBundle calldata bundle) external {
         require(collateral[msg.sender] >= amount, "INSUFFICIENT_COLLATERAL");
+        _verifyPrice(bundle);
+        uint256 price = _toUintPrice(bundle.price);
         collateral[msg.sender] -= amount;
-        require(_healthFactor(msg.sender) >= 1e18, "HF_LT_1");
+        require(_healthFactorWithPrice(msg.sender, price) >= 1e18, "HF_LT_1");
         emit Withdraw(msg.sender, amount);
     }
 
-    function liquidate(address user, uint256 repayAmount) external {
-        require(_healthFactor(user) < 1e18, "HF_GTE_1");
-        uint256 d = debt[user];
-        if (repayAmount > d) repayAmount = d;
-        debt[user] = d - repayAmount;
+    function liquidate(address user, uint256 repayAmount, PriceBundle calldata bundle) external {
+        _verifyPrice(bundle);
+        uint256 price = _toUintPrice(bundle.price);
+        require(_healthFactorWithPrice(user, price) < 1e18, "HF_GTE_1");
+        uint256 currentDebt = debt[user];
+        if (repayAmount > currentDebt) repayAmount = currentDebt;
+        debt[user] = currentDebt - repayAmount;
         emit Liquidate(user, msg.sender, repayAmount);
     }
 
-    function _canBorrow(address user, uint256 addDebt) internal view returns (bool) {
-        ( , int256 p, ) = priceFeed.latest();
-        require(p > 0, "BAD_PRICE");
-        uint256 price = uint256(p);
+    function _canBorrowWithPrice(address user, uint256 addDebt, uint256 price) internal view returns (bool) {
         // collateralUSD = collateral * price / 1e18
         uint256 collateralUsd = collateral[user] * price / 1e18;
         uint256 maxDebt = collateralUsd * MAX_LTV / 1e18;
         return debt[user] + addDebt <= maxDebt;
     }
 
-    function _healthFactor(address user) internal view returns (uint256) {
-        ( , int256 p, ) = priceFeed.latest();
-        if (p <= 0) return 0;
-        uint256 price = uint256(p);
+    function _healthFactorWithPrice(address user, uint256 price) internal view returns (uint256) {
         uint256 collateralUsd = collateral[user] * price / 1e18;
         if (debt[user] == 0) return type(uint256).max;
-        // HF = (collateralUSD * LIQ_THRESHOLD) / debtUSD
-        return collateralUsd * LIQ_THRESHOLD / 1e18 / debt[user];
+        return collateralUsd * LIQ_THRESHOLD / debt[user];
+    }
+
+    function _toUintPrice(int256 signedPrice) internal pure returns (uint256) {
+        require(signedPrice > 0, "BAD_PRICE");
+        return uint256(signedPrice);
+    }
+
+    function _verifyPrice(PriceBundle calldata bundle) internal {
+        uint256 maxDelay = priceMeta.maxDelay();
+        address signer = priceMeta.feedSigner();
+
+        PriceVerifier.verifyAndEnforce(
+            address(priceMeta),
+            signer,
+            lastRoundId,
+            maxDelay,
+            bundle.roundId,
+            bundle.price,
+            bundle.ts,
+            bundle.sig
+        );
+        lastRoundId = bundle.roundId;
     }
 }
