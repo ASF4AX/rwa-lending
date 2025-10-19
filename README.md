@@ -74,7 +74,9 @@ source .env
 anvil -p 8545 -m "$ANVIL_MNEMONIC"
 
 # 컨트랙트 배포
-forge script script/Deploy.s.sol --broadcast --rpc-url "$RPC_URL"
+forge script script/Deploy.s.sol --broadcast --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY"
+
+# 배포결과 확인
 cat broadcast/Deploy.s.sol/$(cast chain-id --rpc-url "$RPC_URL")/run-latest.json
 ```
 
@@ -114,8 +116,11 @@ pnpm dev
 
 ## Docker Compose
 
+Anvil, 오라클 서버, app 실행 및 `script/Deploy.s.sol` 배포
+
 ```bash
-cp .env.example .env  # 필요시 .env 수정
+# 필요시 .env 수정
+cp .env.example .env
 docker compose up -d
 ```
 
