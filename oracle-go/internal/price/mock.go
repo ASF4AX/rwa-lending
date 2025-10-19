@@ -1,9 +1,9 @@
 package price
 
 // MockSource is a simple in-memory source for development/testing.
-type MockSource struct{}
+type MockSource struct{ round uint64 }
 
-// Latest returns a fixed round and price (1e18) for local runs.
-func (MockSource) Latest() (roundID uint64, price string) {
-    return 1, "1000000000000000000"
+func (m *MockSource) Latest() (roundID uint64, price string) {
+    m.round++
+    return m.round, "1000000000000000000"
 }

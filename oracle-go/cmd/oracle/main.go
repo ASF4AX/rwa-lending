@@ -29,7 +29,7 @@ func main() {
     }
 
     // TODO: Replace mock with a real price source implementation.
-    priceSource := price.MockSource{}
+    priceSource := &price.MockSource{}
 
     // HTTP router and route registration.
     router := http.NewServeMux()
