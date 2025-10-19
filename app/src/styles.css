@@ -1,0 +1,112 @@
+:root {
+  --bg: #0b1020;
+  --panel: #121a2b;
+  --text: #e6edf3;
+  --muted: #93a1b5;
+  --primary: #5b9cff;
+  --primary-600: #3d84ff;
+  --danger: #ff6b6b;
+  --success: #28d294;
+  --border: #1f2a44;
+}
+
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; width: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container { max-width: 900px; margin: 0 auto; padding: 24px 24px 56px; }
+/* Uniform vertical spacing between top-level sections (16px) */
+.container > .card,
+.container > .grid { margin-top: 16px; }
+
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0 0; border-bottom: none;
+}
+.brand { font-weight: 600; letter-spacing: 0.2px; }
+.subtle { color: var(--muted); font-size: 12px; }
+
+.grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 860px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } }
+
+#app { background: var(--bg); min-height: 100dvh; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 16px 14px 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+/* Tighter heading/content spacing for compact cards */
+.card.compact .section-title { margin-bottom: 0; }
+
+/* Liquidate row with three columns: address | amount | button */
+.row.three { grid-template-columns: 2fr 1fr auto; }
+
+.row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
+.row + .row { margin-top: 12px; }
+/* Match button height to inputs inside form rows */
+.row .btn { height: 44px; display: inline-flex; align-items: center; align-self: end; }
+
+label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+input[type="text"] {
+  width: 100%;
+  background: #0f1629; color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 12px;
+  height: 44px;
+  outline: none;
+}
+input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(91,156,255,0.15); }
+
+.btn {
+  appearance: none; border: 0; cursor: pointer;
+  font-weight: 600; color: white; background: var(--primary);
+  padding: 12px 14px; border-radius: 10px; transition: 150ms ease;
+}
+.btn:hover { background: var(--primary-600); }
+.btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn.danger { background: var(--danger); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.section-title { font-size: 16px; margin: 0 0 8px; letter-spacing: 0.3px; }
+.muted { color: var(--muted); }
+
+.inline { display: inline-flex; align-items: center; gap: 8px; }
+.kv { display: inline-flex; align-items: center; gap: 6px; }
+.kv label { margin: 0; line-height: 1; }
+.kv .label { margin: 0; line-height: 1; display: inline-block; color: var(--muted); font-size: 14px; }
+.kv .value { font-weight: 600; line-height: 1; }
+.pill {
+  padding: 4px 8px; border-radius: 999px; font-size: 12px;
+  background: #0f1b33; border: 1px solid var(--border); color: var(--muted);
+}
+.pill.good { border-color: var(--success); color: var(--success); }
+.pill.bad { border-color: var(--danger); color: var(--danger); }
+
+.status { margin-top: 8px; font-size: 13px; }
+.status.error { color: var(--danger); }
+.status.ok { color: var(--success); }
+
+.spinner { width: 16px; height: 16px; border: 2px solid #2a3a5d; border-top-color: var(--text); border-radius: 50%; animation: spin 800ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+
+.stack { display: grid; gap: 10px; margin: 0; }
+/* Remove unintended top offset inside message stack; rely on gap for spacing */
+.card .stack.center .status { margin-top: 0; }
+
+.price-xl { font-size: 26px; font-weight: 700; color: #fff; line-height: 1; }
+/* Ensure Oracle Price text scales regardless of parent rules */
+.card .price-xl { font-size: 28px !important; display: inline-block; }
+.price-sub { font-size: 12px; color: var(--muted); margin-left: 8px; line-height: 1; }
+
+.help { font-size: 12px; color: var(--muted); }
+.warn { color: var(--danger); }
+
+/* Ensure helper text can sit under both columns without breaking alignment */
+.row .help { grid-column: 1 / -1; margin-top: 2px; }
