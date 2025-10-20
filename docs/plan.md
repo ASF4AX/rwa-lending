@@ -36,4 +36,4 @@ This document tracks tasks, progress, and next steps for the project. After each
   - [ ] 스캔 링크 추가, 기본 에러/로딩 상태 보강
 - [ ] 배포/운영 준비
   - [ ] 테스트넷 배포 및 주소/스캔 링크 문서화
-  - [ ] README 운영 가이드 보강
+  - [x] README 운영 가이드 보강

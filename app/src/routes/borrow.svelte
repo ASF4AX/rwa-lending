@@ -236,7 +236,7 @@
 <div class="container">
   <div class="header">
     <div>
-      <div class="brand">RWA Lending Demo</div>
+      <div class="brand">RWA Lending</div>
       <div class="subtle">Oracle: {ORACLE_URL}</div>
     </div>
     <div class="inline">
