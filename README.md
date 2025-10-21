@@ -2,7 +2,7 @@
 
 > EIP-712 서명된 오라클 가격으로 담보 가치를 산정해 차입·상환·청산을 제공하는 온체인 담보 대출 서비스.
 
-<img width="869" height="781" alt="image" src="https://github.com/user-attachments/assets/cdeb524a-4c98-4872-b47b-accd934b0a42" />
+<img width="875" height="790" alt="image" src="https://github.com/user-attachments/assets/081c6f1e-7bfd-4336-a740-202ec1295bf2" />
 
 ## 시스템 구성요소
 
