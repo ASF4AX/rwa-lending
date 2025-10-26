@@ -8,7 +8,7 @@
 
 **On-chain (Smart Contracts)**
 - `RWALendingPool`: 오라클 가격 기반 담보·차입·상환·청산 로직(LTV/HF 기준 적용).
-- `PriceFeedProxy`: EIP-712 서명 검증, 타임스탬프(최대 지연 `maxDelay`) 검증, `roundId` 단조 증가 검증.
+- `PriceFeedProxy`: EIP-712 서명 검증(EOA/1271 지원), 타임스탬프(최대 지연 `maxDelay`) 검증, `roundId` 단조 증가 확인.
 - `RWAAssetToken`: 화이트리스트 기반 전송 제한. 어드민 민트/소각.
 - `RWARegistrar`: ADMIN/ISSUER/KYC_MANAGER 롤 및 화이트리스트 관리.
 
@@ -39,8 +39,9 @@ flowchart LR
   end
 
   GO -->|"EIP-712 signed price"| FE
-  FE -->|"TX: borrow / repay, etc."| LP
-  LP -->|"verify"| PF
+  FE -->|"TX: borrow/withdraw/liquidate with PriceMsg"| LP
+  LP -->|"upsertFromSig(PriceMsg)"| PF
+  LP -->|"read: latest()"| PF
   FE -->|"read: contract state / events"| LP
 ```
 

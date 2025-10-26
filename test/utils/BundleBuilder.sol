@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import { RWALendingPool } from "../../contracts/RWALendingPool.sol";
+import { IPriceFeed } from "../../contracts/interfaces/IPriceFeed.sol";
 import { PriceSigningBase } from "./PriceSigningBase.sol";
 
 abstract contract BundleBuilder is PriceSigningBase {
@@ -11,13 +11,13 @@ abstract contract BundleBuilder is PriceSigningBase {
         int256 price,
         uint256 timestamp,
         uint256 signerPk
-    ) internal view returns (RWALendingPool.PriceBundle memory bundle) {
+    ) internal view returns (IPriceFeed.PriceMsg memory bundle) {
         bytes memory signature = _signPrice(feed, roundId, price, timestamp, signerPk);
-        bundle = RWALendingPool.PriceBundle({
+        bundle = IPriceFeed.PriceMsg({
             roundId: roundId,
             price: price,
-            ts: timestamp,
-            sig: signature
+            timestamp: timestamp,
+            signature: signature
         });
     }
 }

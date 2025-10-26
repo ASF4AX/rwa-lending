@@ -26,12 +26,10 @@ contract LendingDepositBorrowTest is BundleBuilder {
         uint256 roundId = 1;
         int256 price = int256(1e18);
         uint256 timestamp = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle = buildSignedBundle(
             address(feed), roundId, price, timestamp, signerPk
         );
         pool.borrow(650e18, bundle);
-        // lastRoundId should update
-        assertEq(pool.lastRoundId(), roundId);
         assertEq(pool.debt(address(this)), 650e18);
     }
 
@@ -39,7 +37,7 @@ contract LendingDepositBorrowTest is BundleBuilder {
         uint256 roundId = 1;
         int256 price = int256(1e18);
         uint256 timestamp = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle = buildSignedBundle(
             address(feed), roundId, price, timestamp, signerPk
         );
         // Max debt = 1,000,000 * 65% = 650,000e18; try above that
@@ -52,11 +50,11 @@ contract LendingDepositBorrowTest is BundleBuilder {
         uint256 roundId1 = 100;
         int256 price = int256(1e18);
         uint256 ts = block.timestamp;
-        RWALendingPool.PriceBundle memory b1 = buildSignedBundle(address(feed), roundId1, price, ts, signerPk);
+        IPriceFeed.PriceMsg memory b1 = buildSignedBundle(address(feed), roundId1, price, ts, signerPk);
         pool.borrow(600_000e18, b1); // leaves 50_000e18 headroom under 650_000e18
 
         // Second borrow tries to exceed combined LTV by 1e18
-        RWALendingPool.PriceBundle memory b2 = buildSignedBundle(address(feed), roundId1 + 1, price, ts, signerPk);
+        IPriceFeed.PriceMsg memory b2 = buildSignedBundle(address(feed), roundId1 + 1, price, ts, signerPk);
         vm.expectRevert(bytes("EXCEEDS_LTV"));
         pool.borrow(50_001e18, b2); // total would be 650_001e18 > 650_000e18
     }
@@ -66,15 +64,14 @@ contract LendingDepositBorrowTest is BundleBuilder {
         uint256 roundId1 = 200;
         int256 price = int256(1e18);
         uint256 ts = block.timestamp;
-        RWALendingPool.PriceBundle memory b1 = buildSignedBundle(address(feed), roundId1, price, ts, signerPk);
+        IPriceFeed.PriceMsg memory b1 = buildSignedBundle(address(feed), roundId1, price, ts, signerPk);
         pool.borrow(600_000e18, b1);
 
         // Second borrow that stays within limit
-        RWALendingPool.PriceBundle memory b2 = buildSignedBundle(address(feed), roundId1 + 1, price, ts, signerPk);
+        IPriceFeed.PriceMsg memory b2 = buildSignedBundle(address(feed), roundId1 + 1, price, ts, signerPk);
         pool.borrow(50_000e18, b2); // total == 650_000e18 == max
 
         assertEq(pool.debt(address(this)), 650_000e18);
-        assertEq(pool.lastRoundId(), roundId1 + 1);
     }
 
     function testRoundMonotonicityAcrossActions() public {
@@ -82,21 +79,19 @@ contract LendingDepositBorrowTest is BundleBuilder {
         uint256 roundId = 10;
         int256 price = int256(1e18);
         uint256 timestamp = block.timestamp;
-        RWALendingPool.PriceBundle memory bundleBorrow = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundleBorrow = buildSignedBundle(
             address(feed), roundId, price, timestamp, signerPk
         );
         pool.borrow(1e18, bundleBorrow);
 
-        // Attempt withdraw with the same round -> should revert (ROUND_NOT_INCREASING)
-        // Build the bundle first to ensure the next external call after expectRevert is withdraw
-        RWALendingPool.PriceBundle memory bundleSameRound = buildSignedBundle(
+        // Attempt withdraw with the same round -> allowed (Proxy no-op)
+        IPriceFeed.PriceMsg memory bundleSameRound = buildSignedBundle(
             address(feed), roundId, price, timestamp, signerPk
         );
-        vm.expectRevert(bytes("ROUND_NOT_INCREASING"));
         pool.withdraw(1e18, bundleSameRound);
 
         // Next round succeeds
-        RWALendingPool.PriceBundle memory bundleNext = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundleNext = buildSignedBundle(
             address(feed), roundId + 1, price, timestamp, signerPk
         );
         pool.withdraw(1e18, bundleNext);

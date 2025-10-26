@@ -23,7 +23,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
         uint256 roundId = 1;
         int256 price = int256(1e18);
         uint256 timestamp = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle = buildSignedBundle(
             address(feed), roundId, price, timestamp, signerPk
         );
         pool.borrow(650e18, bundle);
@@ -43,7 +43,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
         uint256 roundId2 = 2;
         int256 price2 = int256(1e18);
         uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, price2, timestamp2, signerPk
         );
         pool.withdraw(10e18, bundle2);
@@ -54,7 +54,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
         uint256 roundId2 = 2;
         int256 price2 = int256(7e17);
         uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, price2, timestamp2, signerPk
         );
         vm.expectRevert(bytes("HF_LT_1"));
@@ -63,7 +63,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
 
     function testWithdraw_RevertInsufficientCollateral() public {
         uint256 roundId2 = 2; int256 price2 = int256(1e18); uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, price2, timestamp2, signerPk
         );
         vm.expectRevert(bytes("INSUFFICIENT_COLLATERAL"));
@@ -72,7 +72,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
 
     function testWithdraw_RevertBadPrice() public {
         uint256 roundId2 = 2; int256 negativePrice = -1; uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, negativePrice, timestamp2, signerPk
         );
         vm.expectRevert(bytes("BAD_PRICE"));
@@ -89,7 +89,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
         uint256 roundId2 = 2;
         int256 price2 = int256(1e18);
         uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, price2, timestamp2, signerPk
         );
         // Exactly-at-boundary should pass (HF == 1)
@@ -104,7 +104,7 @@ contract LendingRepayWithdrawTest is BundleBuilder {
         uint256 roundId2 = 2;
         int256 price2 = int256(1e18);
         uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, price2, timestamp2, signerPk
         );
         vm.expectRevert(bytes("HF_LT_1"));

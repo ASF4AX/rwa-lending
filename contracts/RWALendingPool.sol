@@ -2,20 +2,13 @@
 pragma solidity ^0.8.20;
 
 import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
-import { PriceVerifier } from "./lib/PriceVerifier.sol";
-
-interface IPriceFeedMeta {
-    function feedSigner() external view returns (address);
-    function maxDelay() external view returns (uint256);
-}
 
 /// @title RWALendingPool
 /// @notice Collateralized lending with basic parameters and HF check.
 /// @dev Minimal stub for initial scaffold; uses fixed-point 1e18 precision.
 contract RWALendingPool {
     IPriceFeed public priceFeed;
-    IPriceFeedMeta public priceMeta; // same address as priceFeed (PriceFeedProxy)
-    uint256 public lastRoundId;      // last accepted oracle round
+    uint256 public maxStaleness = 1 minutes;
 
     uint256 public constant MAX_LTV = 65e16;         // 65%
     uint256 public constant LIQ_THRESHOLD = 75e16;   // 75%
@@ -31,11 +24,8 @@ contract RWALendingPool {
     event Withdraw(address indexed user, uint256 amount);
     event Liquidate(address indexed user, address indexed liquidator, uint256 repayAmount);
 
-    struct PriceBundle { uint256 roundId; int256 price; uint256 ts; bytes sig; }
-
     constructor(IPriceFeed feed) {
         priceFeed = feed;
-        priceMeta = IPriceFeedMeta(address(feed));
     }
 
     function depositCollateral(uint256 amount) external {
@@ -43,10 +33,10 @@ contract RWALendingPool {
         emit Deposit(msg.sender, amount);
     }
 
-    function borrow(uint256 amount, PriceBundle calldata bundle) external {
-        _verifyPrice(bundle);
-        uint256 price = _toUintPrice(bundle.price);
+    function borrow(uint256 amount, IPriceFeed.PriceMsg calldata priceMsg) external {
+        uint256 price = _readFreshPrice(priceMsg);        
         require(_canBorrowWithPrice(msg.sender, amount, price), "EXCEEDS_LTV");
+
         debt[msg.sender] += amount;
         emit Borrow(msg.sender, amount);
     }
@@ -58,19 +48,19 @@ contract RWALendingPool {
         emit Repay(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount, PriceBundle calldata bundle) external {
+    function withdraw(uint256 amount, IPriceFeed.PriceMsg calldata priceMsg) external {
         require(collateral[msg.sender] >= amount, "INSUFFICIENT_COLLATERAL");
-        _verifyPrice(bundle);
-        uint256 price = _toUintPrice(bundle.price);
+        uint256 price = _readFreshPrice(priceMsg);
+
         collateral[msg.sender] -= amount;
         require(_healthFactorWithPrice(msg.sender, price) >= 1e18, "HF_LT_1");
         emit Withdraw(msg.sender, amount);
     }
 
-    function liquidate(address user, uint256 repayAmount, PriceBundle calldata bundle) external {
-        _verifyPrice(bundle);
-        uint256 price = _toUintPrice(bundle.price);
+    function liquidate(address user, uint256 repayAmount, IPriceFeed.PriceMsg calldata priceMsg) external {
+        uint256 price = _readFreshPrice(priceMsg);        
         require(_healthFactorWithPrice(user, price) < 1e18, "HF_GTE_1");
+        
         uint256 currentDebt = debt[user];
         if (repayAmount > currentDebt) repayAmount = currentDebt;
         debt[user] = currentDebt - repayAmount;
@@ -95,20 +85,10 @@ contract RWALendingPool {
         return uint256(signedPrice);
     }
 
-    function _verifyPrice(PriceBundle calldata bundle) internal {
-        uint256 maxDelay = priceMeta.maxDelay();
-        address signer = priceMeta.feedSigner();
-
-        PriceVerifier.verifyAndEnforce(
-            address(priceMeta),
-            signer,
-            lastRoundId,
-            maxDelay,
-            bundle.roundId,
-            bundle.price,
-            bundle.ts,
-            bundle.sig
-        );
-        lastRoundId = bundle.roundId;
+    function _readFreshPrice(IPriceFeed.PriceMsg calldata priceMsg) internal returns (uint256) {
+        priceFeed.upsertFromSig(priceMsg);
+        (int256 latestPrice, uint256 ts, ) = priceFeed.latest();
+        require(block.timestamp - ts <= maxStaleness, "STALE");
+        return _toUintPrice(latestPrice);
     }
 }

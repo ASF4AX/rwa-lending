@@ -22,7 +22,7 @@ contract LendingLiquidationTest is BundleBuilder {
         uint256 roundId1 = 1;
         int256 price1 = int256(1e18);
         uint256 timestamp1 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle1 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle1 = buildSignedBundle(
             address(feed), roundId1, price1, timestamp1, signerPk
         );
         pool.borrow(650e18, bundle1);
@@ -33,7 +33,7 @@ contract LendingLiquidationTest is BundleBuilder {
         uint256 roundId2 = 2;
         int256 price2 = int256(7e17);
         uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, price2, timestamp2, signerPk
         );
         pool.liquidate(address(this), 100e18, bundle2);
@@ -48,7 +48,7 @@ contract LendingLiquidationTest is BundleBuilder {
         uint256 priceBoundary = (uint256(650e18) + 750 - 1) / uint256(750); // ceil(650e18/750)
         int256 priceAtBoundary = int256(priceBoundary);
         uint256 timestamp2 = block.timestamp;
-        RWALendingPool.PriceBundle memory bundle2 = buildSignedBundle(
+        IPriceFeed.PriceMsg memory bundle2 = buildSignedBundle(
             address(feed), roundId2, priceAtBoundary, timestamp2, signerPk
         );
         vm.expectRevert(bytes("HF_GTE_1"));
