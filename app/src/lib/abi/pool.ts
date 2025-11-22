@@ -46,8 +46,8 @@ export const poolAbi = [
         components: [
           { name: 'roundId', type: 'uint256' },
           { name: 'price', type: 'int256' },
-          { name: 'ts', type: 'uint256' },
-          { name: 'sig', type: 'bytes' },
+          { name: 'timestamp', type: 'uint256' },
+          { name: 'signature', type: 'bytes' },
         ],
       },
     ],
@@ -65,8 +65,8 @@ export const poolAbi = [
         components: [
           { name: 'roundId', type: 'uint256' },
           { name: 'price', type: 'int256' },
-          { name: 'ts', type: 'uint256' },
-          { name: 'sig', type: 'bytes' },
+          { name: 'timestamp', type: 'uint256' },
+          { name: 'signature', type: 'bytes' },
         ],
       },
     ],
@@ -94,19 +94,12 @@ export const poolAbi = [
         components: [
           { name: 'roundId', type: 'uint256' },
           { name: 'price', type: 'int256' },
-          { name: 'ts', type: 'uint256' },
-          { name: 'sig', type: 'bytes' },
+          { name: 'timestamp', type: 'uint256' },
+          { name: 'signature', type: 'bytes' },
         ],
       },
     ],
     outputs: [],
-  },
-  {
-    type: 'function',
-    stateMutability: 'view',
-    name: 'lastRoundId',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint256' }],
   },
   {
     type: 'function',

@@ -30,7 +30,6 @@
   let connecting = false;
   let posCollateral = '0';
   let posDebt = '0';
-  let posLastRound = '0';
   let priceRound = '0';
   let priceNow = '0';
   let priceAge = '';
@@ -207,7 +206,6 @@
       lastDebt = state.debt;
       posCollateral = formatEther(lastColl);
       posDebt = formatEther(lastDebt);
-      posLastRound = String(state.lastRoundId);
       maxLtv = state.maxLtv;
       liqTh = state.liqThreshold;
       updateLimits();
@@ -253,7 +251,7 @@
 
   <OraclePriceCard {priceDisplay} {priceRound} {priceAge} on:refresh={refreshPrice} />
 
-  <PositionsCard {posCollateralDisp} {posDebtDisp} {currentHF} {projectedHF} {hfSafe} {posLastRound} />
+  <PositionsCard {posCollateralDisp} {posDebtDisp} {currentHF} {projectedHF} {hfSafe} />
 
   <div class="grid grid-2">
     <CollateralCard bind:collateral bind:withdrawAmt {maxWithdrawDisp} {withdrawOver}

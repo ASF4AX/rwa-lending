@@ -4,7 +4,6 @@
   export let currentHF = '';
   export let projectedHF: string | '' = '';
   export let hfSafe = true;
-  export let posLastRound = '0';
 
   function toNumberSafe(v: string): number {
     try { return Number(v.replace(/,/g, '')); } catch { return NaN; }
@@ -28,7 +27,6 @@
       {#if projectedHF}
         <span class="pill {projSafe ? 'good' : 'bad'}">Projected HF: {projectedHF}</span>
       {/if}
-      <span class="pill">lastRoundId: {posLastRound}</span>
     </div>
   </div>
 </div>

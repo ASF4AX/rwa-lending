@@ -29,8 +29,8 @@ export async function borrow(poolAddress: `0x${string}`, amount: string): Promis
   const px = {
     roundId: BigInt(latest.round_id),
     price: BigInt(latest.price),
-    ts: BigInt(latest.timestamp),
-    sig: latest.signature as `0x${string}`,
+    timestamp: BigInt(latest.timestamp),
+    signature: latest.signature as `0x${string}`,
   } as const;
   const [addr] = await walletClient!.getAddresses();
   const account = addr as `0x${string}`;
@@ -52,8 +52,8 @@ export async function withdraw(poolAddress: `0x${string}`, amount: string): Prom
   const px = {
     roundId: BigInt(latest.round_id),
     price: BigInt(latest.price),
-    ts: BigInt(latest.timestamp),
-    sig: latest.signature as `0x${string}`,
+    timestamp: BigInt(latest.timestamp),
+    signature: latest.signature as `0x${string}`,
   } as const;
   const [addr] = await walletClient!.getAddresses();
   const account = addr as `0x${string}`;
@@ -95,8 +95,8 @@ export async function liquidate(
   const px = {
     roundId: BigInt(latest.round_id),
     price: BigInt(latest.price),
-    ts: BigInt(latest.timestamp),
-    sig: latest.signature as `0x${string}`,
+    timestamp: BigInt(latest.timestamp),
+    signature: latest.signature as `0x${string}`,
   } as const;
   const [addr] = await walletClient!.getAddresses();
   const account = addr as `0x${string}`;
