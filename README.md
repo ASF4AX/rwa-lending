@@ -4,6 +4,13 @@
 
 <img width="875" height="790" alt="image" src="https://github.com/user-attachments/assets/081c6f1e-7bfd-4336-a740-202ec1295bf2" />
 
+### 테스트넷 배포 주소 (Sepolia)
+
+- `RWARegistrar`: `0x619e9958ea6daed5ab543ba8b83711afed872276`
+- `RWAAssetToken`: `0xea015d7e2f5210c1c85a4e105a302d5b0419ab0a`
+- `PriceFeedProxy`: `0xc5f5da88d1d7b1d17ce6b2c9e1509374582a2957`
+- `RWALendingPool`: `0xd3329558ffbc084bc3e726e66a0b32916a3fac62`
+
 ## 시스템 구성요소
 
 **On-chain (Smart Contracts)**
