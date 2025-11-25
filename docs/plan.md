@@ -26,6 +26,7 @@ This document tracks tasks, progress, and next steps for the project. After each
   - [ ] 컨테이너 헬스체크/로그 보강
 - [ ] 프론트 연결(Svelte + viem)
   - [x] PriceMsg 전달·ABI 반영·latest() 반환 순서 업데이트
+  - [ ] 숫자 입력 포맷 개선: 천 단위 구분자/소수점 포함 입력 허용 및 에러 메시지 정리(예: `66,931.3177` 처리)
   - [ ] UI 오류/로딩/스캔 링크 보강
 - [ ] 배포/운영 준비
   - [ ] 테스트넷 배포 및 주소/스캔 링크 문서화
